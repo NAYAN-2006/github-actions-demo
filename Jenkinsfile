@@ -21,21 +21,47 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t cicd-demo:latest .'
+                sh '''
+                    docker build -t nayan200661/cicd-demo:latest .
+                '''
+            }
+        }
+
+        stage('Push to Docker Hub') {
+            steps {
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: 'dockerhub-credentials',
+                        usernameVariable: 'DOCKER_USERNAME',
+                        passwordVariable: 'DOCKER_PASSWORD'
+                    )
+                ]) {
+                    sh '''
+                        echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+                        docker push nayan200661/cicd-demo:latest
+                        docker logout
+                    '''
+                }
             }
         }
 
         stage('Run Docker Container') {
             steps {
-                sh 'docker rm -f cicd-demo-container || true'
-                sh 'docker run -d -p 5000:5000 --name cicd-demo-container cicd-demo:latest'
+                sh '''
+                    docker rm -f cicd-demo-container || true
+                    docker run -d -p 5000:5000 \
+                        --name cicd-demo-container \
+                        nayan200661/cicd-demo:latest
+                '''
             }
         }
 
         stage('Verify Application') {
             steps {
-                sh 'sleep 2'
-                sh 'curl -f http://localhost:5000'
+                sh '''
+                    sleep 2
+                    curl -f http://localhost:5000
+                '''
             }
         }
     }
