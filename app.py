@@ -9,7 +9,7 @@ def add(a, b):
 
 @app.route("/")
 def home():
-    return "Hello from Dockerized Flask App!"
+    return "Hello from Dockerized Flask App v2!"
 
 
 if __name__ == "__main__":
