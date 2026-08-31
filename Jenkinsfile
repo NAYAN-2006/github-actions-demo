@@ -22,7 +22,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 sh '''
-                    docker build -t nayan200661/cicd-demo:latest .
+                    docker build -t nayan200661/cicd-demo:${BUILD_NUMBER} .
                 '''
             }
         }
@@ -38,7 +38,7 @@ pipeline {
                 ]) {
                     sh '''
                         echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-                        docker push nayan200661/cicd-demo:latest
+                        docker push nayan200661/cicd-demo:${BUILD_NUMBER}
                         docker logout
                     '''
                 }
@@ -49,9 +49,10 @@ pipeline {
             steps {
                 sh '''
                     docker rm -f cicd-demo-container || true
+
                     docker run -d -p 5000:5000 \
                         --name cicd-demo-container \
-                        nayan200661/cicd-demo:latest
+                        nayan200661/cicd-demo:${BUILD_NUMBER}
                 '''
             }
         }
