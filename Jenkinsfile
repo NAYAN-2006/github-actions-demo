@@ -45,19 +45,19 @@ pipeline {
             }
         }
 
-        stage('Run Docker Container') {
+        stage('Deploy to Staging') {
             steps {
                 sh '''
-                    docker rm -f cicd-demo-container || true
+                    docker rm -f cicd-demo-staging || true
 
                     docker run -d -p 5000:5000 \
-                        --name cicd-demo-container \
+                        --name cicd-demo-staging \
                         nayan200661/cicd-demo:${BUILD_NUMBER}
                 '''
             }
         }
 
-        stage('Verify Application') {
+        stage('Verify Staging') {
             steps {
                 sh '''
                     sleep 2
