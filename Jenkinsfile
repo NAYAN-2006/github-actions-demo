@@ -65,5 +65,33 @@ pipeline {
                 '''
             }
         }
+
+        stage('Manual Approval') {
+            steps {
+                input message: 'Staging verification passed. Deploy to Production?',
+                      ok: 'Deploy to Production'
+            }
+        }
+
+        stage('Deploy to Production') {
+            steps {
+                sh '''
+                    docker rm -f cicd-demo-production || true
+
+                    docker run -d -p 5001:5000 \
+                        --name cicd-demo-production \
+                        nayan200661/cicd-demo:${BUILD_NUMBER}
+                '''
+            }
+        }
+
+        stage('Verify Production') {
+            steps {
+                sh '''
+                    sleep 2
+                    curl -f http://localhost:5001
+                '''
+            }
+        }
     }
 }
